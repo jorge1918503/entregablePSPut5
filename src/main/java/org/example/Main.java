@@ -1,6 +1,7 @@
 package org.example;
 
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,29 +25,23 @@ public class Main {
         int opc = -1;
         try {
 
-            // Conectar al servidor
-            ftpClient.connect(server, port);
-            System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
-
-            // Login
-            if (ftpClient.login(user, pass)) {
-                System.out.println("Autenticado en el servidor.");
-                System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
-            } else {
-                System.out.println("Error en autenticación.");
-                return;
-            }
-
-            // Entrar en modo pasivo
-            ftpClient.enterLocalPassiveMode();
-            System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
+            if (conexionLoginFTP(ftpClient, server, port, user, pass)) return;
 
             do {
                 System.out.println("Introduce una opción: ");
+                System.out.println("1. Listar el directorio actual");
+                System.out.println("2. Entrar a un directorio");
+                System.out.println("3. Subir al directorio padre");
+                System.out.println("4. Subir un fichero");
+                System.out.println("5. Borrar un fichero");
+                System.out.println("6. Salir");
                 opc = sc.nextInt();
                 switch (opc) {
                     case 1:
-
+                        FTPFile[] files = ftpClient.listFiles();
+                        for (FTPFile file : files) {
+                            System.out.println((file.isDirectory() ? "[D] " : "[F] ") + file.getName());
+                        }
                         break;
                     case 2:
 
@@ -70,5 +65,36 @@ public class Main {
         }
 
 
+    }
+
+    private static boolean conexionLoginFTP(FTPClient ftpClient, String server, int port, String user, String pass) throws IOException {
+
+        System.out.println("Server: " + server);
+        System.out.println("Port: " + port);
+        System.out.println("User: " + user);
+        System.out.println("Pass: " + pass);
+
+
+        // Conectar al servidor
+        System.out.println("Conectando al servidor...");
+        ftpClient.connect(server, port);
+        System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
+
+        // Entrar en modo pasivo
+        System.out.println("Entrando en modo pasivo...");
+        ftpClient.enterLocalPassiveMode();
+        System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
+
+        // Login
+        System.out.println("Autenticando en el servidor...");
+        if (ftpClient.login(user, pass)) {
+            System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
+        } else {
+            System.out.println("Error en autenticación.");
+            return true;
+        }
+
+
+        return false;
     }
 }
