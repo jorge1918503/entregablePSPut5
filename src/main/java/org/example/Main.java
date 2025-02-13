@@ -11,6 +11,7 @@ import java.util.Properties;
 import java.util.Scanner;
 
 public class Main {
+
     public static void main(String[] args) throws IOException {
         Properties properties = new Properties();
 
@@ -24,52 +25,28 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         int opc = -1;
         try {
-
+            // Conexion y login con el FTPServer
             if (conexionLoginFTP(ftpClient, server, port, user, pass)) return;
-
             do {
 
-                System.out.println("1. Listar el directorio actual");
-                System.out.println("2. Entrar a un directorio");
-                System.out.println("3. Subir al directorio padre");
-                System.out.println("4. Subir un fichero");
-                System.out.println("5. Borrar un fichero");
-                System.out.println("6. Salir");
-                System.out.print("Introduce una opción: ");
-                opc = sc.nextInt();
-                sc.nextLine();
+                // Opciones del menú
+                opc = opcionesMenu(sc);
+
                 switch (opc) {
                     case 1:
-                        FTPFile[] files = ftpClient.listFiles();
-                        for (FTPFile file : files) {
-                            System.out.println(file);
-                        }
-                        System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
+                        mostrarDirectorio(ftpClient);
                         break;
                     case 2:
-                        System.out.println("Introduce el directorio: ");
-                        String directorio = sc.nextLine();
-                        if (!ftpClient.changeWorkingDirectory(directorio)) System.out.println("El directorio no existe.");
-                        System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
+                        entrarDirectorio(sc, ftpClient);
                         break;
                     case 3:
-                        ftpClient.changeToParentDirectory();
-                        System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
+                        subirDirectorioPadre(ftpClient);
                         break;
                     case 4:
-                        System.out.println("Introduce un fichero: ");
-                        String fichero = sc.nextLine();
-                        ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
-                        FileInputStream fis = new FileInputStream(fichero);
-
-                        ftpClient.storeFile(fichero, fis);
-                        System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
+                        subirFichero(sc, ftpClient);
                         break;
                     case 5:
-                        System.out.println("Introduce un fichero: ");
-                        String ficheroBorrar = sc.nextLine();
-                        ftpClient.deleteFile(ficheroBorrar);
-                        System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
+                        borrarFichero(sc, ftpClient);
                         break;
                     case 6:
                         System.out.println("Saliendo del programa...");
@@ -79,6 +56,62 @@ public class Main {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static void borrarFichero(Scanner sc, FTPClient ftpClient) throws IOException {
+        // Borrar fichero
+        System.out.println("Introduce un fichero: ");
+        String ficheroBorrar = sc.nextLine();
+        ftpClient.deleteFile(ficheroBorrar);
+        System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
+    }
+
+    private static void subirFichero(Scanner sc, FTPClient ftpClient) throws IOException {
+        // Subir fichero
+        System.out.println("Introduce un fichero: ");
+        String fichero = sc.nextLine();
+        ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
+        FileInputStream fis = new FileInputStream(fichero);
+
+        ftpClient.storeFile(fichero, fis);
+        System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
+    }
+
+    private static void subirDirectorioPadre(FTPClient ftpClient) throws IOException {
+        // Subimos al directorio padre
+        ftpClient.changeToParentDirectory();
+        System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
+    }
+
+    private static void entrarDirectorio(Scanner sc, FTPClient ftpClient) throws IOException {
+        System.out.println("Introduce el directorio: ");
+        String directorio = sc.nextLine();
+        // Si no consigue cambiar al directorio lo informa
+        if (!ftpClient.changeWorkingDirectory(directorio)) System.out.println("El directorio no existe.");
+        System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
+    }
+
+    private static void mostrarDirectorio(FTPClient ftpClient) throws IOException {
+        // Listamos el directorio en un array de FTPFiles y los imprimimos
+        FTPFile[] files = ftpClient.listFiles();
+        for (FTPFile file : files) {
+            System.out.println(file);
+        }
+        System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
+    }
+
+    private static int opcionesMenu(Scanner sc) {
+        int opc;
+        System.out.println("1. Listar el directorio actual");
+        System.out.println("2. Entrar a un directorio");
+        System.out.println("3. Subir al directorio padre");
+        System.out.println("4. Subir un fichero");
+        System.out.println("5. Borrar un fichero");
+        System.out.println("6. Salir");
+        System.out.print("Introduce una opción: ");
+        opc = sc.nextInt();
+        sc.nextLine();
+        return opc;
     }
 
     private static boolean conexionLoginFTP(FTPClient ftpClient, String server, int port, String user, String pass) throws IOException {
