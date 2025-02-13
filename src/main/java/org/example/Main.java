@@ -42,7 +42,7 @@ public class Main {
                     case 1:
                         FTPFile[] files = ftpClient.listFiles();
                         for (FTPFile file : files) {
-                            System.out.println((file.isDirectory() ? "[D] " : "[F] ") + file.getName());
+                            System.out.println(file);
                         }
                         System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
                         break;
@@ -60,9 +60,16 @@ public class Main {
                         System.out.println("Introduce un fichero: ");
                         String fichero = sc.nextLine();
                         ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
+                        FileInputStream fis = new FileInputStream(fichero);
+
+                        ftpClient.storeFile(fichero, fis);
+                        System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
                         break;
                     case 5:
-
+                        System.out.println("Introduce un fichero: ");
+                        String ficheroBorrar = sc.nextLine();
+                        ftpClient.deleteFile(ficheroBorrar);
+                        System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
                         break;
                     case 6:
                         System.out.println("Saliendo del programa...");
@@ -72,17 +79,9 @@ public class Main {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
     private static boolean conexionLoginFTP(FTPClient ftpClient, String server, int port, String user, String pass) throws IOException {
-
-        System.out.println("Server: " + server);
-        System.out.println("Port: " + port);
-        System.out.println("User: " + user);
-        System.out.println("Pass: " + pass);
-
 
         // Conectar al servidor
         System.out.println("Conectando al servidor...");
@@ -102,7 +101,6 @@ public class Main {
             System.out.println("Error en autenticación.");
             return true;
         }
-
 
         return false;
     }
