@@ -28,29 +28,38 @@ public class Main {
             if (conexionLoginFTP(ftpClient, server, port, user, pass)) return;
 
             do {
-                System.out.println("Introduce una opción: ");
+
                 System.out.println("1. Listar el directorio actual");
                 System.out.println("2. Entrar a un directorio");
                 System.out.println("3. Subir al directorio padre");
                 System.out.println("4. Subir un fichero");
                 System.out.println("5. Borrar un fichero");
                 System.out.println("6. Salir");
+                System.out.print("Introduce una opción: ");
                 opc = sc.nextInt();
+                sc.nextLine();
                 switch (opc) {
                     case 1:
                         FTPFile[] files = ftpClient.listFiles();
                         for (FTPFile file : files) {
                             System.out.println((file.isDirectory() ? "[D] " : "[F] ") + file.getName());
                         }
+                        System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
                         break;
                     case 2:
-
+                        System.out.println("Introduce el directorio: ");
+                        String directorio = sc.nextLine();
+                        if (!ftpClient.changeWorkingDirectory(directorio)) System.out.println("El directorio no existe.");
+                        System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
                         break;
                     case 3:
-
+                        ftpClient.changeToParentDirectory();
+                        System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
                         break;
                     case 4:
-
+                        System.out.println("Introduce un fichero: ");
+                        String fichero = sc.nextLine();
+                        ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
                         break;
                     case 5:
 
