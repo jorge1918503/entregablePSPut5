@@ -53,13 +53,18 @@ public class ej2 {
             Scanner sc = new Scanner(System.in);
             int opc = -1;
             do {
+                try {
+                    System.out.println("1. Lista emails no leidos");
+                    System.out.println("2. Enviar email con copia oculta");
+                    System.out.println("3. Salir");
+                    System.out.print("Introduce una opción: ");
+                    opc = sc.nextInt();
+                    sc.nextLine(); // Limpiar el buffer
 
-                System.out.println("1. Lista emails no leidos");
-                System.out.println("2. Enviar email con copia oculta");
-                System.out.println("3. Salir");
-                System.out.print("Introduce la opción: ");
-                opc = sc.nextInt();
-                sc.nextLine();
+                } catch (Exception e) {
+                    System.out.println("Entrada no válida. Debes introducir un número.");
+                    sc.nextLine(); // Limpiar buffer para evitar bucle infinito
+                }
 
                 switch (opc) {
                     case 1:
@@ -71,6 +76,9 @@ public class ej2 {
                         break;
                     case 3:
                         System.out.println("Saliendo del programa...");
+                        break;
+                    default:
+                        System.out.println("Opción inválida");
                         break;
                 }
             }while (opc != 3);

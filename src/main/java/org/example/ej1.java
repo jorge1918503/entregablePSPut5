@@ -3,6 +3,7 @@ package org.example;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
@@ -49,6 +50,9 @@ public class ej1 {
                     case 6:
                         System.out.println("Saliendo del programa...");
                         break;
+                    default:
+                        System.out.println("Opción inválida");
+                        break;
                 }
             }while (opc != 6);
         } catch (Exception e) {
@@ -68,10 +72,25 @@ public class ej1 {
         // Subir fichero
         System.out.println("Introduce un fichero: ");
         String fichero = sc.nextLine();
-        ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
-        FileInputStream fis = new FileInputStream(fichero);
 
-        ftpClient.storeFile(fichero, fis);
+        // Verificar si el fichero existe
+        File file = new File(fichero);
+        if (!file.exists() || !file.isFile()) {
+            System.out.println("Error: El fichero no existe o no es un archivo válido.");
+            return;
+        }
+
+        // Configurar tipo de archivo en binario
+        ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
+
+        try (FileInputStream fis = new FileInputStream(file)) {
+            if (ftpClient.storeFile(file.getName(), fis)) {
+                System.out.println("Fichero subido con éxito.");
+            } else {
+                System.out.println("Error al subir el fichero.");
+            }
+        }
+
         System.out.println("Respuesta del servidor: " + ftpClient.getReplyString());
     }
 
@@ -90,6 +109,7 @@ public class ej1 {
     }
 
     private static void mostrarDirectorio(FTPClient ftpClient) throws IOException {
+        System.out.println(ftpClient.printWorkingDirectory());
         // Listamos el directorio en un array de FTPFiles y los imprimimos
         FTPFile[] files = ftpClient.listFiles();
         for (FTPFile file : files) {
@@ -99,16 +119,23 @@ public class ej1 {
     }
 
     private static int opcionesMenu(Scanner sc) {
-        int opc;
-        System.out.println("1. Listar el directorio actual");
-        System.out.println("2. Entrar a un directorio");
-        System.out.println("3. Subir al directorio padre");
-        System.out.println("4. Subir un fichero");
-        System.out.println("5. Borrar un fichero");
-        System.out.println("6. Salir");
-        System.out.print("Introduce una opción: ");
-        opc = sc.nextInt();
-        sc.nextLine();
+        int opc =-1;
+        try {
+            System.out.println("1. Listar el directorio actual");
+            System.out.println("2. Entrar a un directorio");
+            System.out.println("3. Subir al directorio padre");
+            System.out.println("4. Subir un fichero");
+            System.out.println("5. Borrar un fichero");
+            System.out.println("6. Salir");
+            System.out.print("Introduce una opción: ");
+
+            opc = sc.nextInt();
+            sc.nextLine(); // Limpiar el buffer
+
+        } catch (Exception e) {
+            System.out.println("Entrada no válida. Debes introducir un número.");
+            sc.nextLine(); // Limpiar buffer para evitar bucle infinito
+        }
         return opc;
     }
 
